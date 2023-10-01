@@ -1,4 +1,5 @@
 ﻿using Line.Models.Parameters;
+using Line.Models.Response;
 using Line.Repositories.Interface;
 using Line.Services.Interfaces;
 
@@ -13,9 +14,9 @@ namespace Line.Services
             _webhookRepository = webhookRepository;
         }
 
-        public void Insert(LineEventPayload payload)
+        public LineResponse Insert(LineEventPayload payload)
         {
-            _webhookRepository.Insert(payload);
+           return _webhookRepository.Insert(payload);
         }
     }
 }

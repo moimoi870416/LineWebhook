@@ -1,9 +1,10 @@
 ﻿using Line.Models.Parameters;
+using Line.Models.Response;
 
 namespace Line.Services.Interfaces
 {
     public interface IWebhookService
     {
-        public void Insert(LineEventPayload payload);
+        public LineResponse Insert(LineEventPayload payload);
     }
 }

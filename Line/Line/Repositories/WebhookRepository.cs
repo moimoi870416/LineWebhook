@@ -1,4 +1,5 @@
 ﻿using Line.Models.Parameters;
+using Line.Models.Response;
 using Line.Repositories.Interface;
 using MongoGogo.Connection;
 
@@ -13,9 +14,16 @@ namespace Line.Repositories
             this.lineEventPayloadCollection = lineEventPayloadCollection;
         }
 
-        public void Insert(LineEventPayload payload)
+        public LineResponse Insert(LineEventPayload payload)
         {
             lineEventPayloadCollection.InsertOne(payload);
+
+            return new LineResponse
+            {
+                Destination = payload.Destination,
+                Events = payload.Events
+
+            };
         }
     }
 }

@@ -1,4 +1,5 @@
 using Line.Models;
+using Line.Models.DB;
 using Line.Repositories;
 using Line.Repositories.Interface;
 using Line.Services;

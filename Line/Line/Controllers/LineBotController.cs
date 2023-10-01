@@ -26,11 +26,15 @@ namespace Line.Controllers
         [HttpPost("Webhook")]
         public IActionResult Webhook(LineEventPayload payload)
         {
-            _webhookService.Insert(payload);
+            var result = _webhookService.Insert(payload);
 
-
-            return Ok(); // 回傳 200 OK
+            return Ok(result); // 回傳 200 OK
         }
 
+        [HttpGet("Test")]
+        public IActionResult Test()
+        {
+            return Ok();
+        }
     }
 }

@@ -1,10 +1,11 @@
 ﻿using Line.Models.Parameters;
+using Line.Models.Response;
 
 namespace Line.Repositories.Interface
 {
     public interface IWebhookRepository
     {
-        public void Insert(LineEventPayload payload);
+        public LineResponse Insert(LineEventPayload payload);
 
     }
 }

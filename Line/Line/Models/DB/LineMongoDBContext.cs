@@ -1,6 +1,6 @@
 ﻿using MongoGogo.Connection;
 
-namespace Line.Models
+namespace Line.Models.DB
 {
     public class LineMongoDBContext : GoContext<LineMongoDBContext>
     {
