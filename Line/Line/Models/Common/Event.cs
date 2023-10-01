@@ -1,7 +1,10 @@
-﻿namespace Line.Models.Base
+﻿
+using Newtonsoft.Json;
+namespace Line.Models.Base
 {
     public class Event
     {
+        [JsonProperty("type")]
         public string Type { get; set; }
         public Message Message { get; set; }
         public string WebhookEventId { get; set; }

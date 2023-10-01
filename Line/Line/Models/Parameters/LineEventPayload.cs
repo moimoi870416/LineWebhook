@@ -1,6 +1,7 @@
 ﻿using Line.Models.Base;
 using Line.Models.DB;
 using MongoGogo.Connection;
+using Newtonsoft.Json;
 
 namespace Line.Models.Parameters
 {
@@ -8,6 +9,8 @@ namespace Line.Models.Parameters
     public class LineEventPayload
     {
         public string Destination { get; set; }
+
+        [JsonProperty("events")]
         public List<Event> Events { get; set; }
     }
 }
