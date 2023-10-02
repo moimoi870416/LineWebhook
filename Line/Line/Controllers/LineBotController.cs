@@ -19,7 +19,7 @@ namespace Line.Controllers
         }
 
         /// <summary>
-        /// webhook
+        /// 接line webhook
         /// </summary>
         /// <param name="payload"></param>
         /// <returns></returns>
@@ -31,10 +31,37 @@ namespace Line.Controllers
             return Ok(result); // 回傳 200 OK
         }
 
+        /// <summary>
+        /// 測試
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("Test")]
         public IActionResult Test()
         {
-            return Ok();
+            return Ok("看的是笨蛋");
+        }
+
+        ///// <summary>
+        ///// 查log
+        ///// </summary>
+        ///// <returns></returns>
+        //[HttpGet("Log")]
+        //public IActionResult GetLog()
+        //{
+        //    var result = _webhookService.GetLog();
+        //    return Ok(result);
+        //}
+
+        /// <summary>
+        /// 查看 webhook結果
+        /// </summary>
+        /// <param name="filterParameter"></param>
+        /// <returns></returns>
+        [HttpPost("Payload")]
+        public IActionResult GetPayload([FromBody]PayloadFilterParameter filterParameter)
+        {
+            var result = _webhookService.GetPayload(filterParameter);
+            return Ok(result);
         }
     }
 }

@@ -4,7 +4,9 @@ using Line.Repositories;
 using Line.Repositories.Interface;
 using Line.Services;
 using Line.Services.Interfaces;
+using HttpContextCatcher;
 using Microsoft.OpenApi.Models;
+using Line.Loggers;
 
 var builder = WebApplication.CreateBuilder(args);
 var service = builder.Services;
@@ -21,6 +23,11 @@ service.AddSwaggerGen(c =>
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Ada's Line webhook API", Version = "v1" });
 });
 
+service.AddHttpContextCatcher(opt =>
+{
+    opt.SetCatcher<LogCatcher>();
+});
+
 //mongoDB
 var connString = "mongodb+srv://moimoi870416:0416@linecluster.fzqut86.mongodb.net/?retryWrites=true&w=majority";
 service.AddMongoContext(new LineMongoDBContext(connString));
@@ -35,6 +42,7 @@ app.UseSwaggerUI(c =>
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Ada's Line Webhook API V1");
 });
 
+app.UseHttpContextCatcher();
 
 app.UseHttpsRedirection();
 

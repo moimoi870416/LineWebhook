@@ -7,6 +7,9 @@ namespace Line.Models.DB
         [MongoDatabase]
         public class Test { }
 
+        [MongoDatabase]
+        public class Log { }
+
         public LineMongoDBContext(string connectionString) : base(connectionString)
         {
         }
