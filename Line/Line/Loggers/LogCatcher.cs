@@ -1,7 +1,8 @@
 ﻿using HttpContextCatcher;
 using HttpContextCatcher.CatcherManager;
 using HttpContextCatcher.Extension.Bsons;
-using Line.Models.Logs;
+using Line.Controllers;
+using Line.Models.DB.Logs;
 using MongoGogo.Connection;
 
 namespace Line.Loggers
@@ -17,6 +18,9 @@ namespace Line.Loggers
 
         public async Task OnCatchAsync(ContextCatcher contextCatcher)
         {
+            //查log的api不要記錄下來
+            if (contextCatcher.Request.Path == "/api/LineBot/Log") return;
+
             try
             {
                 var bson = contextCatcher.ToBsonType();

@@ -41,16 +41,17 @@ namespace Line.Controllers
             return Ok("看的是笨蛋");
         }
 
-        ///// <summary>
-        ///// 查log
-        ///// </summary>
-        ///// <returns></returns>
-        //[HttpGet("Log")]
-        //public IActionResult GetLog()
-        //{
-        //    var result = _webhookService.GetLog();
-        //    return Ok(result);
-        //}
+        /// <summary>
+        /// 查log
+        /// </summary>
+        /// <param name="startTime">起始日期</param>
+        /// <returns></returns>
+        [HttpGet("Log")]
+        public IActionResult GetLog(DateTime? startTime)
+        {
+            var result = _webhookService.GetLog(startTime);
+            return Ok(result);
+        }
 
         /// <summary>
         /// 查看 webhook結果

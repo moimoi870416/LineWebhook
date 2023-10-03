@@ -1,7 +1,8 @@
-﻿using Line.Models.Logs;
+﻿using Line.Models.DB.Logs;
 using Line.Models.Parameters;
 using Line.Models.Response;
 using Line.Repositories.Interface;
+using LinqKit;
 using MongoDB.Driver;
 using MongoGogo.Connection;
 using System.Linq.Expressions;
@@ -20,43 +21,60 @@ namespace Line.Repositories
             this.logInfoCollection = logInfoCollection;
         }
 
-        public List<LogInfo> GetLog()
+        public List<LogInfo> GetLog(DateTime? startTime)
         {
-            return logInfoCollection.Find(_ => true).ToList();
+            //處理映射: 資料減量
+            Expression<Func<GoProjectionBuilder<LogInfo>, GoProjectionDefinition<LogInfo>>> projectBuilder =
+                proj => proj.Exclude(logInfo => logInfo.Response)
+                            .Exclude(logInfo => logInfo.Request.Headers);
+
+            if(startTime == default) return logInfoCollection.Find(filter: _ => true,
+                                                                   projection: projectBuilder).ToList();
+            else
+            {
+                return logInfoCollection.Find(filter: log => log.ReceiveTime >= startTime,
+                                              projection: projectBuilder).ToList();
+            }
         }
 
         public List<LineResponse> GetPayload(PayloadFilterParameter filterParameter)
         {
-            var filter = Builders<LineEventPayload>.Filter.Where(_ => false);
+            var filter = PredicateBuilder.New<LineEventPayload>(false);
+            bool conditionAdded = false;
 
-            if (string.IsNullOrEmpty(filterParameter.Type))
+            if (!string.IsNullOrEmpty(filterParameter.Type))
             {
-                filter |= Builders<LineEventPayload>.Filter.Where(lineEventPayload => lineEventPayload.Events.Any(@event => @event.Type == filterParameter.Type));
+                filter = filter.Or(lineEventPayload => lineEventPayload.Events.Any(@event => @event.Type == filterParameter.Type));
+                conditionAdded = true;
             }
-            if (string.IsNullOrEmpty(filterParameter.SourceType))
+            if (!string.IsNullOrEmpty(filterParameter.SourceType))
             {
-                filter |= Builders<LineEventPayload>.Filter.Where(lineEventPayload => lineEventPayload.Events.Any(@event => @event.Source.Type == filterParameter.SourceType));
+                filter = filter.Or(lineEventPayload => lineEventPayload.Events.Any(@event => @event.Source.Type == filterParameter.SourceType));
+                conditionAdded = true;
             }
-            if (string.IsNullOrEmpty(filterParameter.GroupId))
+            if (!string.IsNullOrEmpty(filterParameter.GroupId))
             {
-                filter |= Builders<LineEventPayload>.Filter.Where(lineEventPayload => lineEventPayload.Events.Any(@event => @event.Source.GroupId == filterParameter.GroupId));
+                filter = filter.Or(lineEventPayload => lineEventPayload.Events.Any(@event => @event.Source.GroupId == filterParameter.GroupId));
+                conditionAdded = true;
             }
-            if (string.IsNullOrEmpty(filterParameter.UserId))
+            if (!string.IsNullOrEmpty(filterParameter.UserId))
             {
-                filter |= Builders<LineEventPayload>.Filter.Where(lineEventPayload => lineEventPayload.Events.Any(@event => @event.Source.UserId == filterParameter.UserId));
-            }
-
-            //all
-            if (string.IsNullOrEmpty(filterParameter.Type) &&
-                string.IsNullOrEmpty(filterParameter.SourceType) &&
-                string.IsNullOrEmpty(filterParameter.GroupId) &&
-                string.IsNullOrEmpty(filterParameter.UserId))
-            {
-                filter = Builders<LineEventPayload>.Filter.Where(_ => true);
+                filter = filter.Or(lineEventPayload => lineEventPayload.Events.Any(@event => @event.Source.UserId == filterParameter.UserId));
+                conditionAdded = true;
             }
 
+            // 如果都沒有條件，則選擇所有資料。
+            if (!conditionAdded)
+            {
+                filter = PredicateBuilder.New<LineEventPayload>(true);
+            }
 
-            var datas = lineEventPayloadCollection.MongoCollection.Find(filter).ToList();
+            var datas = lineEventPayloadCollection.Find(filter: filter,
+                                                        goFindOption: new GoFindOption<LineEventPayload>
+                                                        {
+                                                            Limit = conditionAdded? null: 10,
+                                                            Sort = sorter => sorter.OrderByDescending(lineEventPayload => lineEventPayload.ReceiveTime)
+                                                        }).ToList();
 
 
             return datas.Select(data => new LineResponse
