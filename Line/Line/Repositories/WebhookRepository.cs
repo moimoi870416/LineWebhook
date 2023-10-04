@@ -42,9 +42,19 @@ namespace Line.Repositories
             var filter = PredicateBuilder.New<LineEventPayload>(false);
             bool conditionAdded = false;
 
+            if (!string.IsNullOrEmpty(filterParameter.Destination))
+            {
+                filter = filter.Or(lineEventPayload => lineEventPayload.Destination ==                                                                          filterParameter.Destination);
+                conditionAdded = true;
+            }
             if (!string.IsNullOrEmpty(filterParameter.Type))
             {
                 filter = filter.Or(lineEventPayload => lineEventPayload.Events.Any(@event => @event.Type == filterParameter.Type));
+                conditionAdded = true;
+            }
+            if (!string.IsNullOrEmpty(filterParameter.MessageType))
+            {
+                filter = filter.Or(lineEventPayload => lineEventPayload.Events.Any(@event => @event.Message.Type == filterParameter.MessageType));
                 conditionAdded = true;
             }
             if (!string.IsNullOrEmpty(filterParameter.SourceType))
